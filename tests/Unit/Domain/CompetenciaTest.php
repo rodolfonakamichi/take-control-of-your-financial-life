@@ -111,3 +111,12 @@ it('formata para exibição em português', function () {
     expect($c->formatar())->toBe('03/2026')
         ->and($c->nomeDoMes())->toBe('Março');
 });
+
+it('sabe se há mês anterior e seguinte dentro do calendário', function () {
+    expect(Competencia::de(1900, 1)->temAnterior())->toBeFalse()
+        ->and(Competencia::de(1900, 1)->temProxima())->toBeTrue()
+        ->and(Competencia::de(9999, 12)->temProxima())->toBeFalse()
+        ->and(Competencia::de(9999, 12)->temAnterior())->toBeTrue()
+        ->and(Competencia::de(2026, 1)->temAnterior())->toBeTrue()
+        ->and(Competencia::de(2026, 12)->temProxima())->toBeTrue();
+});

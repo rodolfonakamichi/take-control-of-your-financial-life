@@ -3,18 +3,26 @@
 @endphp
 <x-layouts.app :titulo="'Ano de '.$ano">
     <nav aria-label="Escolher ano" class="flex items-center justify-between gap-2">
-        <a href="{{ route('ano', $ano - 1) }}" class="rounded-full p-2 text-slate-600 hover:bg-slate-200" aria-label="Ano anterior: {{ $ano - 1 }}">
-            <x-nav.icone nome="anterior" />
-        </a>
+        @if ($ano > \App\Domain\Competencia::ANO_MINIMO)
+            <a href="{{ route('ano', $ano - 1) }}" class="rounded-full p-2 text-slate-600 hover:bg-slate-200" aria-label="Ano anterior: {{ $ano - 1 }}">
+                <x-nav.icone nome="anterior" />
+            </a>
+        @else
+            <span class="size-10" aria-hidden="true"></span>
+        @endif
         <div class="text-center">
             <h1 class="text-lg font-semibold">{{ $ano }}</h1>
             @if ($ano !== $mesAtual->ano)
                 <a href="{{ route('ano') }}" class="text-xs text-teal-700 hover:underline">Ir para o ano atual</a>
             @endif
         </div>
-        <a href="{{ route('ano', $ano + 1) }}" class="rounded-full p-2 text-slate-600 hover:bg-slate-200" aria-label="Próximo ano: {{ $ano + 1 }}">
-            <x-nav.icone nome="proximo" />
-        </a>
+        @if ($ano < \App\Domain\Competencia::ANO_MAXIMO)
+            <a href="{{ route('ano', $ano + 1) }}" class="rounded-full p-2 text-slate-600 hover:bg-slate-200" aria-label="Próximo ano: {{ $ano + 1 }}">
+                <x-nav.icone nome="proximo" />
+            </a>
+        @else
+            <span class="size-10" aria-hidden="true"></span>
+        @endif
     </nav>
 
     {{-- CA-07.2: totais do ano (RD-08) --}}
