@@ -83,7 +83,7 @@ describe('ano', function () {
     });
 
     it('destaca o mês atual', function () {
-        expect($this->get('/ano/2026')->getContent())->toMatch('/aria-current="date"[^>]*>\s*Março/');
+        expect($this->get('/ano/2026')->getContent())->toMatch('/id="mes-3"[^>]*aria-current="date"/');
     });
 
     it('navega entre anos e oferece voltar ao atual', function () {

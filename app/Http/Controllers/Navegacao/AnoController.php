@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Navegacao;
 
+use App\Application\Ano\MontarAno;
 use App\Domain\Competencia;
 use App\Http\Controllers\Controller;
 use App\Infra\Tempo\Relogio;
@@ -9,25 +10,25 @@ use Illuminate\View\View;
 use InvalidArgumentException;
 
 /**
- * Navegação por ano (T10). Os totais do ano chegam na T15.
+ * Visão anual (RF-07): os 12 meses com seus totais e os totais do ano.
  */
 class AnoController extends Controller
 {
     public function __construct(private Relogio $relogio) {}
 
-    public function show(?int $ano = null): View
+    public function show(MontarAno $montarAno, ?int $ano = null): View
     {
         $ano ??= $this->relogio->mesAtual()->ano;
 
         try {
-            $meses = Competencia::mesesDoAno($ano);
+            Competencia::de($ano, 1);
         } catch (InvalidArgumentException) {
             abort(404);
         }
 
         return view('ano.show', [
             'ano' => $ano,
-            'meses' => $meses,
+            'visao' => $montarAno->executar($ano),
             'mesAtual' => $this->relogio->mesAtual(),
         ]);
     }

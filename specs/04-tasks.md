@@ -35,7 +35,7 @@ Legenda: ☐ a fazer · ◐ em andamento · ☑ concluída
 | ☑ T12 | Tela de recorrências | RF-04 | CA-04.x via tela |
 | ☑ T13 | Tela de parcelamentos | RF-05 · CA-05.x | Incluindo exclusão total com confirmação (CA-05.5) |
 | ☑ T14 | Guardado: movimentos no mês, guardado inicial nas configurações | RF-06 · CA-06.1, CA-06.6 | Testes verdes |
-| ☐ T15 | Visão anual | RF-07 · CA-07.x | Testes verdes |
+| ☑ T15 | Visão anual | RF-07 · CA-07.x | Testes verdes |
 | ☐ T16 | Projeção de meses futuros (selo, navegação livre de ano) | RF-08 · CA-08.x | Mês de um ano nunca aberto mostra recorrências e parcelas |
 | ☐ T17 | Tela inicial v1.0: total guardado, resumo do mês atual | CA-06.7 | Teste verde |
 | ☐ T18 | Importador da planilha legada + relatório | RF-09 · CA-09.x | Teste com planilha sintética verde; reimportação não duplica |
