@@ -58,6 +58,12 @@ Molde de uma despesa que se repete todo mês.
 Ao gerar o lançamento de um mês, o valor pode ser **editado só naquele mês** (ex.: conta de
 telefone que variou) sem alterar o padrão. Alterar o `valor_padrao` vale **daqui para frente**.
 
+Detalhes (decididos na T06):
+- O valor padrão é guardado como uma lista de **vigências** (`vigente_desde`, `valor`). A primeira vigência começa no `inicio`.
+- Alterar o valor a partir do mês `m` cria uma vigência em `m` e **descarta as vigências posteriores a `m`**: todos os meses ≥ `m` passam a usar o novo valor (CA-04.3).
+- Um valor **editado só num mês** (exceção) tem prioridade sobre qualquer vigência e é mantido mesmo quando o valor padrão muda depois.
+- Exceções só podem ser feitas em meses em que a recorrência está ativa.
+
 ### 2.4 Parcelamento (compra parcelada / dívida)
 | Campo | Observação |
 |---|---|

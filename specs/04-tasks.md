@@ -22,7 +22,7 @@ Legenda: ☐ a fazer · ◐ em andamento · ☑ concluída
 |---|---|---|---|
 | ☑ T04 | `CalculadoraResumo` | RD-01..04, RD-08 · CA-02.1, CA-02.2, CA-03.1, CA-03.4, CA-06.4 | Testes unitários verdes |
 | ☑ T05 | `LivroGuardado` | RD-03, RD-05, RV-07 · CA-06.2, CA-06.3, CA-06.5 | Inclui retirada que deixaria um mês futuro negativo |
-| ☐ T06 | `ResolvedorRecorrencia` (valores vigentes + exceções) | RD-07 · CA-04.1..04.5 | Inclui mudança de valor a partir de um mês e encerramento |
+| ☑ T06 | `ResolvedorRecorrencia` (valores vigentes + exceções) | RD-07 · CA-04.1..04.5 | Inclui mudança de valor a partir de um mês e encerramento |
 | ☐ T07 | `GeradorParcelas` | RD-06, RD-16 · CA-05.1..05.4 | Inclui parcelas atravessando o ano e alteração que não toca passado nem pagas |
 
 ### Persistência e telas
