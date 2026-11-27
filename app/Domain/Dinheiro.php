@@ -24,15 +24,20 @@ final readonly class Dinheiro
     }
 
     /**
-     * Aceita o formato digitado pelo usuário ("1.200,00", "R$ 85", "-20,5")
+     * Aceita o formato digitado pelo usuário ("1.200,00", "3.000", "R$ 85", "-20,5")
      * e o formato decimal com ponto ("1200.00", vindo da planilha).
+     * Sem vírgula, um ponto seguido de exatamente 3 dígitos é milhar; de 1 ou 2, é decimal.
      */
     public static function deTexto(string $texto): self
     {
         $limpo = trim(str_replace(['R$', ' ', "\u{00A0}"], '', $texto));
 
         if (str_contains($limpo, ',')) {
+            // "1.234,56": ponto é milhar, vírgula é decimal.
             $limpo = str_replace(['.', ','], ['', '.'], $limpo);
+        } elseif (preg_match('/^-?\d{1,3}(\.\d{3})+$/', $limpo)) {
+            // "3.000" ou "1.234.567": sem vírgula, pontos seguidos de 3 dígitos são milhar.
+            $limpo = str_replace('.', '', $limpo);
         }
 
         if (! preg_match('/^(-)?(\d+)(?:\.(\d{1,2}))?$/', $limpo, $m)) {

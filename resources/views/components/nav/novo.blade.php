@@ -1,13 +1,13 @@
 @props(['flutuante' => false])
 {{--
     Botão + (CA-16.3): sempre visível, abre as ações de lançar.
-    Usa <details>, sem JavaScript. Os formulários abrem na tela do mês pelo parâmetro ?novo= (T11).
+    Usa <details>, sem JavaScript. Os formulários abrem na tela do mês pelo parâmetro ?novo=.
 --}}
 @php
     $acoes = [
         ['despesa', 'Despesa'],
         ['receita', 'Receita'],
-        ['guardado', 'Guardar ou retirar'],
+        // 'Guardar ou retirar' volta na T14, com o formulário do guardado.
     ];
 @endphp
 <details {{ $attributes->class(['group relative']) }}>

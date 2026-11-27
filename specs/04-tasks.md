@@ -31,7 +31,7 @@ Legenda: ☐ a fazer · ◐ em andamento · ☑ concluída
 | ☑ T08 | Migrations e models da v1.0; caso de uso `MontarMes` | Design §2.2, §3 | Teste de feature monta um mês com avulsos, recorrências, parcelas e guardado |
 | ☑ T09 | Senha única: login, lembrar aparelho, limite de tentativas, sair, trocar senha, comando `financas:definir-senha` | RF-18 · CA-18.1..18.6 | Testes de feature verdes |
 | ☑ T10 | Layout base mobile-first: barra inferior, botão **+**, navegação por mês e ano | RNF-07 · CA-16.4 (parcial) | Telas sem rolagem horizontal em 360px |
-| ☐ T11 | Tela do mês: lançar, editar e excluir despesas e receitas; resumo | RF-01, RF-02, RF-03 · CA-01.x, CA-02.x, CA-03.x | Testes Livewire verdes |
+| ☑ T11 | Tela do mês: lançar, editar e excluir despesas e receitas; resumo | RF-01, RF-02, RF-03 · CA-01.x, CA-02.x, CA-03.x | Testes Livewire verdes |
 | ☐ T12 | Tela de recorrências | RF-04 | CA-04.x via tela |
 | ☐ T13 | Tela de parcelamentos | RF-05 · CA-05.x | Incluindo exclusão total com confirmação (CA-05.5) |
 | ☐ T14 | Guardado: movimentos no mês, guardado inicial nas configurações | RF-06 · CA-06.1, CA-06.6 | Testes verdes |
