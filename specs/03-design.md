@@ -130,7 +130,8 @@ de sequência vão para o relatório (CA-09.2).
 ## 5. Acesso e segurança (RF-18, RNF-06)
 
 - Autenticação padrão do Laravel com **um único usuário**. A tela pede só a senha; o e-mail do usuário fica fixo internamente.
-- A senha inicial é definida com `php artisan financas:definir-senha`. Não há tela de "primeiro acesso", para que ninguém na rede consiga definir a senha antes do dono.
+- A senha inicial é definida com `php artisan financas:definir-senha` (mínimo de 6 caracteres, digitada duas vezes; o mesmo comando redefine a senha se ela for esquecida). Não há tela de "primeiro acesso", para que ninguém na rede consiga definir a senha antes do dono.
+- Trocar a senha, pelo comando ou pela tela, gera um novo *remember token*: os aparelhos marcados para lembrar precisam entrar de novo.
 - "Lembrar neste aparelho" usa o *remember token* do Laravel com duração de 30 dias. Sem ele, a sessão expira ao fechar o navegador (CA-18.4).
 - `RateLimiter`: 5 tentativas por minuto por IP (CA-18.5).
 - O servidor escuta em `0.0.0.0:${APP_PORT}` (padrão **8765**), acessível pelo IP do computador na rede de casa (ex.: `http://192.168.0.10:8765`).

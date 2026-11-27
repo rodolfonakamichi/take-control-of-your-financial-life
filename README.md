@@ -19,8 +19,11 @@ docker compose run --rm app composer install
 docker compose run --rm app php artisan key:generate   # na primeira vez
 docker compose run --rm node sh -c "npm install && npm run build"
 docker compose run --rm app php artisan migrate
+docker compose run --rm app php artisan financas:definir-senha   # na primeira vez
 docker compose up -d
 ```
+
+Esqueceu a senha? Rode `financas:definir-senha` de novo no computador onde o sistema roda.
 
 Abra `http://localhost:8765`. Pelo celular, na mesma rede Wi-Fi, use `http://<ip-do-computador>:8765`
 (o IP aparece com `hostname -I`).
