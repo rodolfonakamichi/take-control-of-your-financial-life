@@ -70,6 +70,9 @@ Em seguida calcula o `ResumoMensal` e marca o mês como "projeção" se `compete
 ## 3. Modelo de dados
 
 Convenções: valores em `*_centavos INTEGER`; competência em `CHAR(7)` no formato `AAAA-MM`, que ordena corretamente como texto; datas em `DATE`.
+Status de pagamento é `pago_em` (nulo = a pagar). Em `lancamentos` ele já existe na v1.0, porque o RD-16 (alterar ou cancelar parcelamento) depende de saber se a parcela foi paga.
+
+Os models Eloquent ficam em `app/Models` (convenção do Laravel). Quem converte entre models e objetos de domínio são os repositórios em `app/Infra/Persistencia`. O domínio nunca recebe um model.
 
 ### 3.1 Tabelas
 
@@ -77,14 +80,14 @@ Convenções: valores em `*_centavos INTEGER`; competência em `CHAR(7)` no form
 |---|---|---|
 | `users` | uma única linha (o dono); só `password` é usado | v1.0 |
 | `configuracoes` | `chave`, `valor` — `guardado_inicial_centavos`, `horizonte_vencimento_dias`, `pasta_backup` | v1.0 |
-| `lancamentos` | `tipo` (despesa/receita), `descricao`, `valor_centavos`, `competencia`, `categoria_receita`, `origem` (avulso/parcelamento), `parcelamento_id`, `parcela_numero`, `chave_importacao` *(única, nula)* | v1.0 |
+| `lancamentos` | `tipo` (despesa/receita), `descricao`, `valor_centavos`, `competencia`, `categoria_receita`, `origem` (avulso/parcelamento), `parcelamento_id`, `parcela_numero`, `pago_em`, `chave_importacao` *(única, nula)* | v1.0 |
 | `recorrencias` | `descricao`, `inicio`, `fim` *(nulo)* | v1.0 |
 | `recorrencia_valores` | `recorrencia_id`, `vigente_desde`, `valor_centavos` | v1.0 |
 | `recorrencia_ocorrencias` | `recorrencia_id`, `competencia` *(único com o id)*, `valor_centavos` *(nulo = usa o vigente)* | v1.0 |
 | `parcelamentos` | `descricao`, `valor_parcela_centavos`, `total_parcelas`, `primeira_competencia`, `cancelado_em` | v1.0 |
-| `movimentos_guardado` | `competencia`, `tipo` (guardar/retirar), `valor_centavos`, `descricao` | v1.0 |
+| `movimentos_guardado` | `competencia`, `tipo` (guardar/retirar), `valor_centavos`, `descricao`, `chave_importacao` | v1.0 |
 | `categorias` | `nome` *(único)* | v1.1 |
-| + colunas | `categoria_id` em lançamentos, recorrências, parcelamentos e compras; `status`, `pago_em` em lançamentos e ocorrências; `vencimento` em lançamentos; `dia_vencimento` em recorrências e parcelamentos | v1.1 |
+| + colunas | `categoria_id` em lançamentos, recorrências, parcelamentos e compras; `pago_em` em ocorrências; `vencimento` em lançamentos; `dia_vencimento` em recorrências e parcelamentos | v1.1 |
 | `cartoes` | `nome`, `dia_fechamento`, `dia_vencimento` | v1.2 |
 | `compras_cartao` | `cartao_id`, `data_compra`, `descricao`, `categoria_id`, `valor_total_centavos`, `parcelas`, `cancelada_em` | v1.2 |
 | `parcelas_cartao` | `compra_id`, `numero`, `valor_centavos`, `fatura_fechamento` | v1.2 |

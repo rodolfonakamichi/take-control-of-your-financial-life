@@ -29,7 +29,8 @@ docker compose run --rm node npm run build         # assets (Vite/Tailwind)
 
 - `app/Domain`: regras de cálculo em PHP puro, sem Laravel. Todo cálculo mora aqui.
 - `app/Application`: casos de uso (orquestram, não calculam).
-- `app/Infra`: Eloquent, PhpSpreadsheet, backup, relógio.
+- `app/Infra`: repositórios (model ↔ domínio), PhpSpreadsheet, backup, relógio (`Relogio`; nos testes use `RelogioFixo`).
+- `app/Models`: models Eloquent. O domínio nunca recebe um model.
 - `app/Livewire` + `resources/views`: interface mobile-first.
 - Dinheiro sempre em centavos (`int`). Competência como `AAAA-MM`. Totais nunca são gravados no banco.
 - Código e interface em português do Brasil.
