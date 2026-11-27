@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Competencia;
 use App\Domain\Dinheiro;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -59,4 +60,12 @@ function something()
 function reais(string $valor): Dinheiro
 {
     return Dinheiro::deTexto($valor);
+}
+
+/**
+ * Atalho para competências nos testes: mes('2026-03').
+ */
+function mes(string $competencia): Competencia
+{
+    return Competencia::deTexto($competencia);
 }
