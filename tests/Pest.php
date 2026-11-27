@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Dinheiro;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -50,4 +51,12 @@ expect()->extend('toBeOne', function () {
 function something()
 {
     // ..
+}
+
+/**
+ * Atalho para valores em reais nos testes: reais('1.200,00').
+ */
+function reais(string $valor): Dinheiro
+{
+    return Dinheiro::deTexto($valor);
 }
