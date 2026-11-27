@@ -220,7 +220,7 @@ describe('CA-18.5 limite de tentativas', function () {
 it('CA-18.6 sai do sistema', function () {
     $this->actingAs(definirSenha());
 
-    $this->get('/')->assertSee('Sair');
+    $this->get('/mais')->assertSee('Sair');
     $this->post('/sair')->assertRedirect(route('login'));
 
     $this->assertGuest();

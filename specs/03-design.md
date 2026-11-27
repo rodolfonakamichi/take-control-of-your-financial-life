@@ -177,7 +177,7 @@ O banco fica em `database/financas.sqlite` e os backups em `./backups`, ambos mo
 | Gráficos | mensal do ano, total guardado, por categoria | RF-12 |
 | Configurações | trocar senha, guardado inicial, horizonte de vencimentos, exportar, backup e restauração | RF-17, RF-18, CA-06.6, CA-13.5 |
 
-No celular, a navegação é uma barra inferior (Início, Mês, Ano, Mais). A ação **+** fica sempre visível.
+No celular, a navegação é uma barra inferior (Início, Mês, **+**, Ano, Mais); em telas largas ela vai para o topo e o **+** flutua no canto. O **+** abre as ações de lançar, que levam à tela do mês com `?novo=despesa|receita|guardado`, abrindo o formulário correspondente (T11). URLs: `/mes/AAAA-MM`, `/ano/AAAA` (sem parâmetro = mês ou ano atual).
 
 **PWA (RF-16):** manifesto e ícones permitem "adicionar à tela inicial". O navegador só registra o *service worker*, e portanto só deixa instalar como app de verdade, em conexão segura (HTTPS ou `localhost`). Pelo IP da rede em HTTP, o celular cria um atalho que abre no navegador. Para cumprir o CA-16.2 por completo, a v1.2 inclui HTTPS local (seção 5).
 
