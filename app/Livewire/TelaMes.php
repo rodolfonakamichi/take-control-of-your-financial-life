@@ -4,9 +4,12 @@ namespace App\Livewire;
 
 use App\Application\Lancamentos\LancamentosAvulsos;
 use App\Application\Mes\MontarMes;
+use App\Application\Recorrencias\GerenciarRecorrencias;
 use App\Domain\Competencia;
 use App\Domain\Dinheiro;
 use App\Domain\Lancamento\CategoriaReceita;
+use App\Infra\Persistencia\RepositorioRecorrencias;
+use App\Livewire\Concerns\LeCampos;
 use App\Models\Lancamento;
 use Illuminate\Contracts\View\View;
 use InvalidArgumentException;
@@ -19,14 +22,19 @@ use Livewire\Component;
  */
 class TelaMes extends Component
 {
+    use LeCampos;
+
     #[Locked]
     public string $competencia;
 
-    /** 'despesa' | 'receita' | null (formulário fechado) */
+    /** 'despesa' | 'receita' | 'recorrencia' (valor da fixa só neste mês) | null (fechado) */
     public ?string $formulario = null;
 
     #[Locked]
     public ?int $editandoId = null;
+
+    #[Locked]
+    public ?int $recorrenciaId = null;
 
     public string $descricao = '';
 
@@ -50,8 +58,43 @@ class TelaMes extends Component
         }
 
         $this->resetErrorBag();
-        $this->reset('editandoId', 'descricao', 'valor', 'categoria');
+        $this->reset('editandoId', 'recorrenciaId', 'descricao', 'valor', 'categoria');
         $this->formulario = $tipo;
+    }
+
+    /**
+     * CA-04.2: abre a edição do valor de uma despesa fixa só neste mês.
+     */
+    public function editarRecorrencia(int $id, RepositorioRecorrencias $repositorio): void
+    {
+        $ocorrencia = $repositorio->porId($id)?->ocorrenciaEm(Competencia::deTexto($this->competencia));
+
+        if ($ocorrencia === null) {
+            return;
+        }
+
+        $this->resetErrorBag();
+        $this->reset('editandoId', 'categoria');
+        $this->formulario = 'recorrencia';
+        $this->recorrenciaId = $id;
+        $this->descricao = $ocorrencia->descricao;
+        $this->valor = self::valorParaCampo($ocorrencia->valor);
+    }
+
+    /**
+     * CA-04.2: o mês volta a usar o valor padrão da despesa fixa.
+     */
+    public function voltarAoPadrao(int $id, GerenciarRecorrencias $recorrencias): void
+    {
+        try {
+            $recorrencias->desfazerValorDoMes($id, Competencia::deTexto($this->competencia));
+        } catch (InvalidArgumentException) {
+            return;
+        }
+
+        if ($this->recorrenciaId === $id) {
+            $this->cancelar();
+        }
     }
 
     public function editar(int $id): void
@@ -66,21 +109,27 @@ class TelaMes extends Component
         $this->formulario = $lancamento->tipo;
         $this->editandoId = $lancamento->id;
         $this->descricao = $lancamento->descricao;
-        $this->valor = number_format($lancamento->valor_centavos / 100, 2, ',', '.');
+        $this->valor = self::valorParaCampo(Dinheiro::centavos($lancamento->valor_centavos));
         $this->categoria = $lancamento->categoria_receita ?? 'salario';
     }
 
     public function cancelar(): void
     {
         $this->resetErrorBag();
-        $this->reset('formulario', 'editandoId', 'descricao', 'valor', 'categoria');
+        $this->reset('formulario', 'editandoId', 'recorrenciaId', 'descricao', 'valor', 'categoria');
     }
 
-    public function salvar(LancamentosAvulsos $lancamentos): void
+    public function salvar(LancamentosAvulsos $lancamentos, GerenciarRecorrencias $recorrencias): void
     {
         $this->resetErrorBag();
 
-        $valor = $this->lerValor();
+        if ($this->formulario === 'recorrencia') {
+            $this->salvarValorDaRecorrencia($recorrencias);
+
+            return;
+        }
+
+        $valor = $this->lerValor('valor');
         $categoria = CategoriaReceita::tryFrom($this->categoria);
 
         if ($this->formulario === 'receita' && $categoria === null) {
@@ -131,39 +180,30 @@ class TelaMes extends Component
         }
     }
 
+    private function salvarValorDaRecorrencia(GerenciarRecorrencias $recorrencias): void
+    {
+        $valor = $this->lerValor('valor');
+
+        if ($valor === null || $this->recorrenciaId === null) {
+            return;
+        }
+
+        try {
+            $recorrencias->valorSoNoMes($this->recorrenciaId, Competencia::deTexto($this->competencia), $valor);
+        } catch (InvalidArgumentException $e) {
+            $this->addError('valor', $e->getMessage());
+
+            return;
+        }
+
+        $this->cancelar();
+    }
+
     public function render(MontarMes $montarMes): View
     {
         return view('livewire.tela-mes', [
             'mes' => $montarMes->executar(Competencia::deTexto($this->competencia)),
             'categorias' => CategoriaReceita::cases(),
         ]);
-    }
-
-    /**
-     * RV-01 / CA-01.2: valor obrigatório, no formato brasileiro e maior que zero.
-     */
-    private function lerValor(): ?Dinheiro
-    {
-        if (trim($this->valor) === '') {
-            $this->addError('valor', 'Informe o valor.');
-
-            return null;
-        }
-
-        try {
-            $valor = Dinheiro::deTexto($this->valor);
-        } catch (InvalidArgumentException) {
-            $this->addError('valor', 'Valor inválido. Use o formato 1.234,56.');
-
-            return null;
-        }
-
-        if (! $valor->ehPositivo()) {
-            $this->addError('valor', 'O valor deve ser maior que zero.');
-
-            return null;
-        }
-
-        return $valor;
     }
 }

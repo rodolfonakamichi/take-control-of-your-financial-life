@@ -25,6 +25,8 @@ Route::middleware('auth')->group(function () {
 
     Route::view('/mais', 'mais')->name('mais');
 
+    Route::view('/recorrencias', 'recorrencias.index')->name('recorrencias');
+
     Route::post('/sair', [SessaoController::class, 'destroy'])->name('logout');
 
     Route::get('/configuracoes/senha', [SenhaController::class, 'edit'])->name('configuracoes.senha');

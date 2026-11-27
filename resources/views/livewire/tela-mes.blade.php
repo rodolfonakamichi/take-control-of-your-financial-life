@@ -31,16 +31,24 @@
     @if ($formulario)
         <section aria-labelledby="titulo-formulario" class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-teal-200">
             <h2 id="titulo-formulario" class="mb-3 font-semibold">
-                {{ $editandoId ? 'Editar' : 'Nova' }} {{ $formulario === 'receita' ? 'receita' : 'despesa' }}
+                @if ($formulario === 'recorrencia')
+                    {{ $descricao }}: valor só em {{ $mes->competencia->nomeDoMes() }} de {{ $mes->competencia->ano }}
+                @else
+                    {{ $editandoId ? 'Editar' : 'Nova' }} {{ $formulario === 'receita' ? 'receita' : 'despesa' }}
+                @endif
             </h2>
 
             <form wire:submit="salvar" class="space-y-3">
+                @if ($formulario === 'recorrencia')
+                    <p class="text-sm text-slate-500">Os outros meses continuam com o valor padrão. Para mudar daqui para frente, use <a href="{{ route('recorrencias') }}" class="font-medium text-teal-700 hover:underline">Despesas fixas</a>.</p>
+                @else
                 <div>
                     <label for="descricao" class="mb-1 block text-sm font-medium">Descrição</label>
                     <input id="descricao" type="text" wire:model="descricao" autocomplete="off" autofocus maxlength="255"
                            placeholder="{{ $formulario === 'receita' ? 'Ex.: Salário' : 'Ex.: Mercado' }}" class="{{ $campo }}">
                     @error('descricao') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
+                @endif
 
                 <div>
                     <label for="valor" class="mb-1 block text-sm font-medium">Valor (R$)</label>
@@ -90,6 +98,13 @@
                         <span class="text-sm font-medium tabular-nums">{{ $item->valor->formatar() }}</span>
                         @if ($item->origem->value === 'avulso')
                             <x-mes.acoes :id="$item->lancamentoId" :descricao="$item->descricao" />
+                        @elseif ($item->origem->value === 'recorrencia')
+                            <div class="flex shrink-0 gap-1">
+                                <button type="button" wire:click="editarRecorrencia({{ $item->recorrenciaId }})" class="rounded-md px-2 py-1 text-xs font-medium text-teal-700 hover:bg-teal-50" aria-label="Editar o valor de {{ $item->descricao }} só neste mês">Editar</button>
+                                @if ($item->valorEditadoNoMes)
+                                    <button type="button" wire:click="voltarAoPadrao({{ $item->recorrenciaId }})" class="rounded-md px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-100" aria-label="Voltar {{ $item->descricao }} ao valor padrão">Padrão</button>
+                                @endif
+                            </div>
                         @endif
                     </li>
                 @endforeach

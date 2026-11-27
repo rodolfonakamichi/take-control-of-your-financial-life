@@ -1,8 +1,11 @@
 <x-layouts.app titulo="Mais">
     <h1 class="mb-4 text-lg font-semibold">Mais</h1>
 
-    {{-- Recorrências, parcelamentos e guardado entram aqui nas tarefas T12 a T14. --}}
+    {{-- Parcelamentos e guardado entram aqui nas tarefas T13 e T14. --}}
     <ul class="divide-y divide-slate-200 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
+        <li>
+            <a href="{{ route('recorrencias') }}" class="block px-4 py-3.5 text-sm hover:bg-slate-50">Despesas fixas</a>
+        </li>
         <li>
             <a href="{{ route('configuracoes.senha') }}" class="block px-4 py-3.5 text-sm hover:bg-slate-50">Trocar senha</a>
         </li>
