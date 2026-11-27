@@ -11,7 +11,7 @@
         ['ano', route('ano'), 'ano', 'Ano'],
         ['mais', route('mais'), 'mais', 'Mais'],
     ];
-    $ativo = fn (string $rota) => request()->routeIs($rota) || ($rota === 'mais' && request()->routeIs('configuracoes.*', 'recorrencias'));
+    $ativo = fn (string $rota) => request()->routeIs($rota) || ($rota === 'mais' && request()->routeIs('configuracoes.*', 'recorrencias', 'parcelamentos'));
 @endphp
 <x-layouts.base :titulo="$titulo">
     <header class="sticky top-0 z-20 border-b border-slate-200 bg-white/95 backdrop-blur">

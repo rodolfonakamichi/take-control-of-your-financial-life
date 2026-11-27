@@ -98,6 +98,8 @@
                         <span class="text-sm font-medium tabular-nums">{{ $item->valor->formatar() }}</span>
                         @if ($item->origem->value === 'avulso')
                             <x-mes.acoes :id="$item->lancamentoId" :descricao="$item->descricao" />
+                        @elseif ($item->origem->value === 'parcelamento')
+                            <a href="{{ route('parcelamentos') }}" class="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-teal-700 hover:bg-teal-50" aria-label="Gerenciar o parcelamento {{ $item->descricao }}">Gerenciar</a>
                         @elseif ($item->origem->value === 'recorrencia')
                             <div class="flex shrink-0 gap-1">
                                 <button type="button" wire:click="editarRecorrencia({{ $item->recorrenciaId }})" class="rounded-md px-2 py-1 text-xs font-medium text-teal-700 hover:bg-teal-50" aria-label="Editar o valor de {{ $item->descricao }} só neste mês">Editar</button>
