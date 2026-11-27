@@ -38,7 +38,8 @@ describe('layout', function () {
         $this->get($url)
             ->assertSee('aria-label="Novo lançamento"', escape: false)
             ->assertSee(route('mes', ['novo' => 'despesa']), escape: false)
-            ->assertSee(route('mes', ['novo' => 'receita']), escape: false);
+            ->assertSee(route('mes', ['novo' => 'receita']), escape: false)
+            ->assertSee(route('mes', ['novo' => 'guardado']), escape: false);
     })->with(['/', '/mes/2026-05', '/ano/2027', '/mais']);
 });
 

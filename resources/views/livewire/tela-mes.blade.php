@@ -33,19 +33,40 @@
             <h2 id="titulo-formulario" class="mb-3 font-semibold">
                 @if ($formulario === 'recorrencia')
                     {{ $descricao }}: valor só em {{ $mes->competencia->nomeDoMes() }} de {{ $mes->competencia->ano }}
+                @elseif ($formulario === 'guardado')
+                    {{ $movimentoId ? 'Editar movimento do guardado' : 'Guardar ou retirar' }}
                 @else
                     {{ $editandoId ? 'Editar' : 'Nova' }} {{ $formulario === 'receita' ? 'receita' : 'despesa' }}
                 @endif
             </h2>
 
             <form wire:submit="salvar" class="space-y-3">
+                @if ($formulario === 'guardado')
+                    <fieldset>
+                        <legend class="mb-1 text-sm font-medium">O que você fez</legend>
+                        <div class="grid grid-cols-2 gap-2">
+                            @foreach (['guardar' => 'Guardei', 'retirar' => 'Retirei'] as $opcao => $rotulo)
+                                <label @class([
+                                    'flex cursor-pointer items-center justify-center rounded-lg px-3 py-2 text-sm font-medium ring-1',
+                                    'bg-teal-50 text-teal-800 ring-teal-600' => $tipoMovimento === $opcao,
+                                    'text-slate-600 ring-slate-300' => $tipoMovimento !== $opcao,
+                                ])>
+                                    <input type="radio" wire:model.live="tipoMovimento" value="{{ $opcao }}" class="sr-only">
+                                    {{ $rotulo }}
+                                </label>
+                            @endforeach
+                        </div>
+                        @error('tipoMovimento') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </fieldset>
+                @endif
+
                 @if ($formulario === 'recorrencia')
                     <p class="text-sm text-slate-500">Os outros meses continuam com o valor padrão. Para mudar daqui para frente, use <a href="{{ route('recorrencias') }}" class="font-medium text-teal-700 hover:underline">Despesas fixas</a>.</p>
                 @else
                 <div>
-                    <label for="descricao" class="mb-1 block text-sm font-medium">Descrição</label>
+                    <label for="descricao" class="mb-1 block text-sm font-medium">Descrição @if ($formulario === 'guardado')<span class="font-normal text-slate-400">(opcional)</span>@endif</label>
                     <input id="descricao" type="text" wire:model="descricao" autocomplete="off" autofocus maxlength="255"
-                           placeholder="{{ $formulario === 'receita' ? 'Ex.: Salário' : 'Ex.: Mercado' }}" class="{{ $campo }}">
+                           placeholder="{{ match ($formulario) { 'receita' => 'Ex.: Salário', 'guardado' => 'Ex.: CDB, poupança, resgate', default => 'Ex.: Mercado' } }}" class="{{ $campo }}">
                     @error('descricao') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
                 @endif
@@ -139,18 +160,36 @@
         @endif
     </section>
 
-    {{-- Guardado (o formulário chega na T14) --}}
-    @if ($mes->movimentos !== [])
-        <section aria-labelledby="titulo-guardado">
-            <h2 id="titulo-guardado" class="mb-2 font-semibold">Guardado</h2>
+    {{-- Guardado (RF-06) --}}
+    <section aria-labelledby="titulo-guardado">
+        <div class="mb-2 flex items-center justify-between">
+            <h2 id="titulo-guardado" class="font-semibold">Guardado</h2>
+            <button type="button" wire:click="abrir('guardado')" class="text-sm font-medium text-teal-700 hover:underline">+ Guardar ou retirar</button>
+        </div>
+
+        @error('movimentos')
+            <p class="mb-2 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">{{ $message }}</p>
+        @enderror
+
+        @if ($mes->movimentos === [])
+            <p class="rounded-xl bg-white p-4 text-sm text-slate-500 ring-1 ring-slate-200">Nada guardado nem retirado neste mês.</p>
+        @else
             <ul class="divide-y divide-slate-100 overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
                 @foreach ($mes->movimentos as $item)
+                    @php($rotuloMovimento = $item->movimento->descricao ?: ($item->movimento->tipo->value === 'guardar' ? 'Guardado' : 'Retirado'))
                     <li class="flex items-center gap-3 px-4 py-3" wire:key="movimento-{{ $item->id }}">
-                        <p class="min-w-0 flex-1 truncate text-sm">{{ $item->movimento->descricao ?: ($item->movimento->tipo->value === 'guardar' ? 'Guardado' : 'Retirado') }}</p>
-                        <span class="text-sm font-medium tabular-nums">{{ $item->movimento->efeito()->formatar() }}</span>
+                        <div class="min-w-0 flex-1">
+                            <p class="truncate text-sm">{{ $rotuloMovimento }}</p>
+                            <span class="text-xs text-slate-400">{{ $item->movimento->tipo->value === 'guardar' ? 'guardei' : 'retirei' }}</span>
+                        </div>
+                        <span @class(['text-sm font-medium tabular-nums', 'text-amber-700' => $item->movimento->tipo->value === 'retirar'])>{{ $item->movimento->efeito()->formatar() }}</span>
+                        <div class="flex shrink-0 gap-1">
+                            <button type="button" wire:click="editarMovimento({{ $item->id }})" class="rounded-md px-2 py-1 text-xs font-medium text-teal-700 hover:bg-teal-50" aria-label="Editar {{ $rotuloMovimento }}">Editar</button>
+                            <button type="button" wire:click="excluirMovimento({{ $item->id }})" wire:confirm="Excluir “{{ $rotuloMovimento }}”?" class="rounded-md px-2 py-1 text-xs font-medium text-red-700 hover:bg-red-50" aria-label="Excluir {{ $rotuloMovimento }}">Excluir</button>
+                        </div>
                     </li>
                 @endforeach
             </ul>
-        </section>
-    @endif
+        @endif
+    </section>
 </div>

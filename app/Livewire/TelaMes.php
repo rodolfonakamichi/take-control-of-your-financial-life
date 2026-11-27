@@ -2,15 +2,19 @@
 
 namespace App\Livewire;
 
+use App\Application\Guardado\GerenciarGuardado;
 use App\Application\Lancamentos\LancamentosAvulsos;
 use App\Application\Mes\MontarMes;
 use App\Application\Recorrencias\GerenciarRecorrencias;
 use App\Domain\Competencia;
 use App\Domain\Dinheiro;
+use App\Domain\Guardado\GuardadoFicariaNegativo;
+use App\Domain\Guardado\TipoMovimento;
 use App\Domain\Lancamento\CategoriaReceita;
 use App\Infra\Persistencia\RepositorioRecorrencias;
 use App\Livewire\Concerns\LeCampos;
 use App\Models\Lancamento;
+use App\Models\MovimentoGuardado as MovimentoGuardadoModel;
 use Illuminate\Contracts\View\View;
 use InvalidArgumentException;
 use Livewire\Attributes\Locked;
@@ -27,7 +31,9 @@ class TelaMes extends Component
     #[Locked]
     public string $competencia;
 
-    /** 'despesa' | 'receita' | 'recorrencia' (valor da fixa só neste mês) | null (fechado) */
+    private const FORMULARIOS_NOVOS = ['despesa', 'receita', 'guardado'];
+
+    /** 'despesa' | 'receita' | 'guardado' | 'recorrencia' (valor da fixa só neste mês) | null (fechado) */
     public ?string $formulario = null;
 
     #[Locked]
@@ -35,6 +41,12 @@ class TelaMes extends Component
 
     #[Locked]
     public ?int $recorrenciaId = null;
+
+    #[Locked]
+    public ?int $movimentoId = null;
+
+    /** 'guardar' | 'retirar' */
+    public string $tipoMovimento = 'guardar';
 
     public string $descricao = '';
 
@@ -46,20 +58,65 @@ class TelaMes extends Component
     {
         $this->competencia = (string) Competencia::deTexto($competencia);
 
-        if (in_array($novo, ['despesa', 'receita'], true)) {
+        if (in_array($novo, self::FORMULARIOS_NOVOS, true)) {
             $this->abrir($novo);
         }
     }
 
     public function abrir(string $tipo): void
     {
-        if (! in_array($tipo, ['despesa', 'receita'], true)) {
+        if (! in_array($tipo, self::FORMULARIOS_NOVOS, true)) {
             return;
         }
 
         $this->resetErrorBag();
-        $this->reset('editandoId', 'recorrenciaId', 'descricao', 'valor', 'categoria');
+        $this->reset('editandoId', 'recorrenciaId', 'movimentoId', 'tipoMovimento', 'descricao', 'valor', 'categoria');
         $this->formulario = $tipo;
+    }
+
+    /**
+     * CA-06.1: editar um movimento do guardado deste mês.
+     */
+    public function editarMovimento(int $id): void
+    {
+        $movimento = MovimentoGuardadoModel::query()->find($id);
+
+        if ($movimento === null || (string) $movimento->competencia !== $this->competencia) {
+            return;
+        }
+
+        $this->abrir('guardado');
+        $this->movimentoId = $movimento->id;
+        $this->tipoMovimento = $movimento->tipo;
+        $this->valor = self::valorParaCampo(Dinheiro::centavos($movimento->valor_centavos));
+        $this->descricao = (string) $movimento->descricao;
+    }
+
+    /**
+     * RV-07: a exclusão é recusada se deixar o total guardado negativo em algum mês.
+     */
+    public function excluirMovimento(int $id, GerenciarGuardado $guardado): void
+    {
+        $this->resetErrorBag();
+        $movimento = MovimentoGuardadoModel::query()->find($id);
+
+        if ($movimento === null || (string) $movimento->competencia !== $this->competencia) {
+            return;
+        }
+
+        try {
+            $guardado->excluir($id);
+        } catch (GuardadoFicariaNegativo $e) {
+            $this->addError('movimentos', 'Não dá para excluir: '.lcfirst($e->getMessage()));
+
+            return;
+        } catch (InvalidArgumentException) {
+            return;
+        }
+
+        if ($this->movimentoId === $id) {
+            $this->cancelar();
+        }
     }
 
     /**
@@ -116,15 +173,21 @@ class TelaMes extends Component
     public function cancelar(): void
     {
         $this->resetErrorBag();
-        $this->reset('formulario', 'editandoId', 'recorrenciaId', 'descricao', 'valor', 'categoria');
+        $this->reset('formulario', 'editandoId', 'recorrenciaId', 'movimentoId', 'tipoMovimento', 'descricao', 'valor', 'categoria');
     }
 
-    public function salvar(LancamentosAvulsos $lancamentos, GerenciarRecorrencias $recorrencias): void
+    public function salvar(LancamentosAvulsos $lancamentos, GerenciarRecorrencias $recorrencias, GerenciarGuardado $guardado): void
     {
         $this->resetErrorBag();
 
         if ($this->formulario === 'recorrencia') {
             $this->salvarValorDaRecorrencia($recorrencias);
+
+            return;
+        }
+
+        if ($this->formulario === 'guardado') {
+            $this->salvarMovimento($guardado);
 
             return;
         }
@@ -178,6 +241,35 @@ class TelaMes extends Component
         if ($this->editandoId === $id) {
             $this->cancelar();
         }
+    }
+
+    /**
+     * CA-06.1 / CA-06.5: guardar ou retirar; recusa o que deixaria o total negativo.
+     */
+    private function salvarMovimento(GerenciarGuardado $guardado): void
+    {
+        $tipo = TipoMovimento::tryFrom($this->tipoMovimento);
+        if ($tipo === null) {
+            $this->addError('tipoMovimento', 'Escolha guardar ou retirar.');
+        }
+
+        $valor = $this->lerValor('valor');
+
+        if ($tipo === null || $valor === null) {
+            return;
+        }
+
+        try {
+            $this->movimentoId === null
+                ? $guardado->registrar(Competencia::deTexto($this->competencia), $tipo, $valor, $this->descricao)
+                : $guardado->editar($this->movimentoId, $tipo, $valor, $this->descricao);
+        } catch (GuardadoFicariaNegativo|InvalidArgumentException $e) {
+            $this->addError('valor', $e->getMessage());
+
+            return;
+        }
+
+        $this->cancelar();
     }
 
     private function salvarValorDaRecorrencia(GerenciarRecorrencias $recorrencias): void

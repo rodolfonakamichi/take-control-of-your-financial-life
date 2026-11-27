@@ -31,6 +31,8 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/sair', [SessaoController::class, 'destroy'])->name('logout');
 
+    Route::view('/configuracoes/guardado', 'configuracoes.guardado')->name('configuracoes.guardado');
+
     Route::get('/configuracoes/senha', [SenhaController::class, 'edit'])->name('configuracoes.senha');
     Route::put('/configuracoes/senha', [SenhaController::class, 'update'])->name('configuracoes.senha.update');
 });

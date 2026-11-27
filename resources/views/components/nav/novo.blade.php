@@ -7,7 +7,7 @@
     $acoes = [
         ['despesa', 'Despesa'],
         ['receita', 'Receita'],
-        // 'Guardar ou retirar' volta na T14, com o formulário do guardado.
+        ['guardado', 'Guardar ou retirar'],
     ];
 @endphp
 <details {{ $attributes->class(['group relative']) }}>
