@@ -1,0 +1,42 @@
+# Isolado dos demais projetos da máquina (RNF-09): nome, rede e porta próprios.
+name: financas
+
+x-app: &app
+  build: .
+  image: financas-app:local
+  user: "${UID:-1000}:${GID:-1000}"
+  working_dir: /app
+  volumes:
+    - ./:/app
+  environment:
+    TZ: America/Sao_Paulo
+
+services:
+  app:
+    <<: *app
+    command: ["frankenphp", "php-server", "--listen", ":8000", "--root", "/app/public"]
+    ports:
+      - "${APP_PORT:-8765}:8000"
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "-o", "/dev/null", "http://localhost:8000/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    restart: unless-stopped
+
+  scheduler:
+    <<: *app
+    command: ["php", "artisan", "schedule:work"]
+    healthcheck:
+      disable: true
+    restart: unless-stopped
+
+  node:
+    image: node:22-alpine
+    profiles: ["tools"]
+    user: "${UID:-1000}:${GID:-1000}"
+    working_dir: /app
+    volumes:
+      - ./:/app
+    environment:
+      npm_config_cache: /tmp/.npm

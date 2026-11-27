@@ -1,0 +1,7 @@
+vendor
+node_modules
+.git
+.idea
+storage
+database/*.sqlite
+backups
