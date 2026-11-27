@@ -70,6 +70,9 @@ Em seguida calcula o `ResumoMensal` e marca o mês como "projeção" se `compete
 ## 3. Modelo de dados
 
 Convenções: valores em `*_centavos INTEGER`; competência em `CHAR(7)` no formato `AAAA-MM`, que ordena corretamente como texto; datas em `DATE`.
+Status de pagamento é `pago_em` (nulo = a pagar). Em `lancamentos` ele já existe na v1.0, porque o RD-16 (alterar ou cancelar parcelamento) depende de saber se a parcela foi paga.
+
+Os models Eloquent ficam em `app/Models` (convenção do Laravel). Quem converte entre models e objetos de domínio são os repositórios em `app/Infra/Persistencia`. O domínio nunca recebe um model.
 
 ### 3.1 Tabelas
 
@@ -77,14 +80,14 @@ Convenções: valores em `*_centavos INTEGER`; competência em `CHAR(7)` no form
 |---|---|---|
 | `users` | uma única linha (o dono); só `password` é usado | v1.0 |
 | `configuracoes` | `chave`, `valor` — `guardado_inicial_centavos`, `horizonte_vencimento_dias`, `pasta_backup` | v1.0 |
-| `lancamentos` | `tipo` (despesa/receita), `descricao`, `valor_centavos`, `competencia`, `categoria_receita`, `origem` (avulso/parcelamento), `parcelamento_id`, `parcela_numero`, `chave_importacao` *(única, nula)* | v1.0 |
+| `lancamentos` | `tipo` (despesa/receita), `descricao`, `valor_centavos`, `competencia`, `categoria_receita`, `origem` (avulso/parcelamento), `parcelamento_id`, `parcela_numero`, `pago_em`, `chave_importacao` *(única, nula)* | v1.0 |
 | `recorrencias` | `descricao`, `inicio`, `fim` *(nulo)* | v1.0 |
 | `recorrencia_valores` | `recorrencia_id`, `vigente_desde`, `valor_centavos` | v1.0 |
 | `recorrencia_ocorrencias` | `recorrencia_id`, `competencia` *(único com o id)*, `valor_centavos` *(nulo = usa o vigente)* | v1.0 |
 | `parcelamentos` | `descricao`, `valor_parcela_centavos`, `total_parcelas`, `primeira_competencia`, `cancelado_em` | v1.0 |
-| `movimentos_guardado` | `competencia`, `tipo` (guardar/retirar), `valor_centavos`, `descricao` | v1.0 |
+| `movimentos_guardado` | `competencia`, `tipo` (guardar/retirar), `valor_centavos`, `descricao`, `chave_importacao` | v1.0 |
 | `categorias` | `nome` *(único)* | v1.1 |
-| + colunas | `categoria_id` em lançamentos, recorrências, parcelamentos e compras; `status`, `pago_em` em lançamentos e ocorrências; `vencimento` em lançamentos; `dia_vencimento` em recorrências e parcelamentos | v1.1 |
+| + colunas | `categoria_id` em lançamentos, recorrências, parcelamentos e compras; `pago_em` em ocorrências; `vencimento` em lançamentos; `dia_vencimento` em recorrências e parcelamentos | v1.1 |
 | `cartoes` | `nome`, `dia_fechamento`, `dia_vencimento` | v1.2 |
 | `compras_cartao` | `cartao_id`, `data_compra`, `descricao`, `categoria_id`, `valor_total_centavos`, `parcelas`, `cancelada_em` | v1.2 |
 | `parcelas_cartao` | `compra_id`, `numero`, `valor_centavos`, `fatura_fechamento` | v1.2 |
@@ -127,7 +130,8 @@ de sequência vão para o relatório (CA-09.2).
 ## 5. Acesso e segurança (RF-18, RNF-06)
 
 - Autenticação padrão do Laravel com **um único usuário**. A tela pede só a senha; o e-mail do usuário fica fixo internamente.
-- A senha inicial é definida com `php artisan financas:definir-senha`. Não há tela de "primeiro acesso", para que ninguém na rede consiga definir a senha antes do dono.
+- A senha inicial é definida com `php artisan financas:definir-senha` (mínimo de 6 caracteres, digitada duas vezes; o mesmo comando redefine a senha se ela for esquecida). Não há tela de "primeiro acesso", para que ninguém na rede consiga definir a senha antes do dono.
+- Trocar a senha, pelo comando ou pela tela, gera um novo *remember token*: os aparelhos marcados para lembrar precisam entrar de novo.
 - "Lembrar neste aparelho" usa o *remember token* do Laravel com duração de 30 dias. Sem ele, a sessão expira ao fechar o navegador (CA-18.4).
 - `RateLimiter`: 5 tentativas por minuto por IP (CA-18.5).
 - O servidor escuta em `0.0.0.0:${APP_PORT}` (padrão **8765**), acessível pelo IP do computador na rede de casa (ex.: `http://192.168.0.10:8765`).
@@ -173,7 +177,7 @@ O banco fica em `database/financas.sqlite` e os backups em `./backups`, ambos mo
 | Gráficos | mensal do ano, total guardado, por categoria | RF-12 |
 | Configurações | trocar senha, guardado inicial, horizonte de vencimentos, exportar, backup e restauração | RF-17, RF-18, CA-06.6, CA-13.5 |
 
-No celular, a navegação é uma barra inferior (Início, Mês, Ano, Mais). A ação **+** fica sempre visível.
+No celular, a navegação é uma barra inferior (Início, Mês, **+**, Ano, Mais); em telas largas ela vai para o topo e o **+** flutua no canto. O **+** abre as ações de lançar, que levam à tela do mês com `?novo=despesa|receita|guardado`, abrindo o formulário correspondente (T11). URLs: `/mes/AAAA-MM`, `/ano/AAAA` (sem parâmetro = mês ou ano atual).
 
 **PWA (RF-16):** manifesto e ícones permitem "adicionar à tela inicial". O navegador só registra o *service worker*, e portanto só deixa instalar como app de verdade, em conexão segura (HTTPS ou `localhost`). Pelo IP da rede em HTTP, o celular cria um atalho que abre no navegador. Para cumprir o CA-16.2 por completo, a v1.2 inclui HTTPS local (seção 5).
 

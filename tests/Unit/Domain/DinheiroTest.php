@@ -22,11 +22,17 @@ it('lê valores digitados no formato brasileiro', function (string $texto, int $
     ['1200.00', 120000],
     ['147.93', 14793],
     ['1.234.567,89', 123456789],
+    // Sem vírgula: ponto com 3 dígitos depois é milhar; com 1 ou 2 dígitos é decimal.
+    ['3.000', 300000],
+    ['R$ 3.000', 300000],
+    ['1.234.567', 123456700],
+    ['12.500', 1250000],
+    ['3.5', 350],
 ]);
 
 it('recusa texto que não é valor monetário', function (string $texto) {
     Dinheiro::deTexto($texto);
-})->with(['', 'abc', '1,234', '12,3,4', '1.5.0'])->throws(InvalidArgumentException::class);
+})->with(['', 'abc', '1,234', '12,3,4', '1.5.0', '1.23.456', '1.2345', '.50'])->throws(InvalidArgumentException::class);
 
 it('converte decimais da planilha sem erro de ponto flutuante', function (float $valor, int $centavos) {
     expect(Dinheiro::deDecimal($valor)->centavos)->toBe($centavos);

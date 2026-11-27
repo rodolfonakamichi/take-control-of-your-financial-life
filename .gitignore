@@ -33,3 +33,8 @@ Thumbs.db
 /backups/
 /tests/Fixtures/private/
 !/tests/Fixtures/*.csv
+
+# Instância descartável usada para verificar telas no navegador
+/storage/framework/verificacao/
+*.sqlite
+*.sqlite-journal

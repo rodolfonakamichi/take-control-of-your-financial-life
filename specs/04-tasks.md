@@ -20,23 +20,23 @@ Legenda: ☐ a fazer · ◐ em andamento · ☑ concluída
 ### Domínio
 | ID | Tarefa | Cobre | Pronto quando |
 |---|---|---|---|
-| ☐ T04 | `CalculadoraResumo` | RD-01..04, RD-08 · CA-02.1, CA-02.2, CA-03.1, CA-03.4, CA-06.4 | Testes unitários verdes |
-| ☐ T05 | `LivroGuardado` | RD-03, RD-05, RV-07 · CA-06.2, CA-06.3, CA-06.5 | Inclui retirada que deixaria um mês futuro negativo |
-| ☐ T06 | `ResolvedorRecorrencia` (valores vigentes + exceções) | RD-07 · CA-04.1..04.5 | Inclui mudança de valor a partir de um mês e encerramento |
-| ☐ T07 | `GeradorParcelas` | RD-06, RD-16 · CA-05.1..05.4 | Inclui parcelas atravessando o ano e alteração que não toca passado nem pagas |
+| ☑ T04 | `CalculadoraResumo` | RD-01..04, RD-08 · CA-02.1, CA-02.2, CA-03.1, CA-03.4, CA-06.4 | Testes unitários verdes |
+| ☑ T05 | `LivroGuardado` | RD-03, RD-05, RV-07 · CA-06.2, CA-06.3, CA-06.5 | Inclui retirada que deixaria um mês futuro negativo |
+| ☑ T06 | `ResolvedorRecorrencia` (valores vigentes + exceções) | RD-07 · CA-04.1..04.5 | Inclui mudança de valor a partir de um mês e encerramento |
+| ☑ T07 | `GeradorParcelas` | RD-06, RD-16 · CA-05.1..05.4 | Inclui parcelas atravessando o ano e alteração que não toca passado nem pagas |
 
 ### Persistência e telas
 | ID | Tarefa | Cobre | Pronto quando |
 |---|---|---|---|
-| ☐ T08 | Migrations e models da v1.0; caso de uso `MontarMes` | Design §2.2, §3 | Teste de feature monta um mês com avulsos, recorrências, parcelas e guardado |
-| ☐ T09 | Senha única: login, lembrar aparelho, limite de tentativas, sair, trocar senha, comando `financas:definir-senha` | RF-18 · CA-18.1..18.6 | Testes de feature verdes |
-| ☐ T10 | Layout base mobile-first: barra inferior, botão **+**, navegação por mês e ano | RNF-07 · CA-16.4 (parcial) | Telas sem rolagem horizontal em 360px |
-| ☐ T11 | Tela do mês: lançar, editar e excluir despesas e receitas; resumo | RF-01, RF-02, RF-03 · CA-01.x, CA-02.x, CA-03.x | Testes Livewire verdes |
-| ☐ T12 | Tela de recorrências | RF-04 | CA-04.x via tela |
-| ☐ T13 | Tela de parcelamentos | RF-05 · CA-05.x | Incluindo exclusão total com confirmação (CA-05.5) |
-| ☐ T14 | Guardado: movimentos no mês, guardado inicial nas configurações | RF-06 · CA-06.1, CA-06.6 | Testes verdes |
-| ☐ T15 | Visão anual | RF-07 · CA-07.x | Testes verdes |
-| ☐ T16 | Projeção de meses futuros (selo, navegação livre de ano) | RF-08 · CA-08.x | Mês de um ano nunca aberto mostra recorrências e parcelas |
+| ☑ T08 | Migrations e models da v1.0; caso de uso `MontarMes` | Design §2.2, §3 | Teste de feature monta um mês com avulsos, recorrências, parcelas e guardado |
+| ☑ T09 | Senha única: login, lembrar aparelho, limite de tentativas, sair, trocar senha, comando `financas:definir-senha` | RF-18 · CA-18.1..18.6 | Testes de feature verdes |
+| ☑ T10 | Layout base mobile-first: barra inferior, botão **+**, navegação por mês e ano | RNF-07 · CA-16.4 (parcial) | Telas sem rolagem horizontal em 360px |
+| ☑ T11 | Tela do mês: lançar, editar e excluir despesas e receitas; resumo | RF-01, RF-02, RF-03 · CA-01.x, CA-02.x, CA-03.x | Testes Livewire verdes |
+| ☑ T12 | Tela de recorrências | RF-04 | CA-04.x via tela |
+| ☑ T13 | Tela de parcelamentos | RF-05 · CA-05.x | Incluindo exclusão total com confirmação (CA-05.5) |
+| ☑ T14 | Guardado: movimentos no mês, guardado inicial nas configurações | RF-06 · CA-06.1, CA-06.6 | Testes verdes |
+| ☑ T15 | Visão anual | RF-07 · CA-07.x | Testes verdes |
+| ☑ T16 | Projeção de meses futuros (selo, navegação livre de ano) | RF-08 · CA-08.x | Mês de um ano nunca aberto mostra recorrências e parcelas |
 | ☐ T17 | Tela inicial v1.0: total guardado, resumo do mês atual | CA-06.7 | Teste verde |
 | ☐ T18 | Importador da planilha legada + relatório | RF-09 · CA-09.x | Teste com planilha sintética verde; reimportação não duplica |
 | ☐ T19 | Backup diário com retenção de 30 | RNF-08 | Teste do comando; agendado no `scheduler` |

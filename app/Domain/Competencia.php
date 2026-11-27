@@ -12,6 +12,10 @@ use InvalidArgumentException;
  */
 final readonly class Competencia
 {
+    public const ANO_MINIMO = 1900;
+
+    public const ANO_MAXIMO = 9999;
+
     private const NOMES = [
         1 => 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
         'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro',
@@ -25,7 +29,7 @@ final readonly class Competencia
             throw new InvalidArgumentException("Mês inválido: {$mes}.");
         }
 
-        if ($ano < 1900 || $ano > 9999) {
+        if ($ano < self::ANO_MINIMO || $ano > self::ANO_MAXIMO) {
             throw new InvalidArgumentException("Ano inválido: {$ano}.");
         }
 
@@ -59,6 +63,22 @@ final readonly class Competencia
         $indice = $this->indice() + $meses;
 
         return self::de(intdiv($indice, 12), $indice % 12 + 1);
+    }
+
+    /**
+     * Se existe mês anterior dentro do calendário (janeiro de 1900 não tem).
+     */
+    public function temAnterior(): bool
+    {
+        return ! ($this->ano === self::ANO_MINIMO && $this->mes === 1);
+    }
+
+    /**
+     * Se existe mês seguinte dentro do calendário (dezembro de 9999 não tem).
+     */
+    public function temProxima(): bool
+    {
+        return ! ($this->ano === self::ANO_MAXIMO && $this->mes === 12);
     }
 
     public function anterior(): self
